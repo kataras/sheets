@@ -28,6 +28,12 @@ type (
 		Values [][]interface{} `json:"values"`
 	}
 
+	// ClearValuesResponse is the response when clearing values of a spreadsheet.
+	ClearValuesResponse struct {
+		SpreadsheetID string `json:"spreadsheetId"`
+		ClearedRange  string `json:"clearedRange"`
+	}
+
 	// UpdateValuesResponse is the response when updating a range of values in a spreadsheet.
 	UpdateValuesResponse struct {
 		// The spreadsheet the updates were applied to.

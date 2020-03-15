@@ -132,6 +132,7 @@ func (c *Client) GetSpreadsheetInfo(ctx context.Context, spreadsheetID string) (
 const (
 	spreadsheetValuesURL         = spreadsheetURL + "/values/%s"
 	spreadsheetValuesBatchGetURL = spreadsheetURL + "/values:batchGet"
+	spreadsheetValuesClearURL    = spreadsheetValuesURL + ":clear"
 )
 
 // Range returns record values of a spreadsheet based on the provided "dataRanges", if more than one data range then it sends a batch request.
@@ -174,6 +175,15 @@ func (c *Client) ReadSpreadsheet(ctx context.Context, dest interface{}, spreadsh
 	}
 
 	return DecodeValueRange(dest, valueRanges...)
+}
+
+// ClearSpreadsheet clears values from a spreadsheet. The caller must specify the spreadsheet ID and range.
+// Only values are cleared -- all other properties of the cell (such as formatting, data validation, etc..) are kept.
+func (c *Client) ClearSpreadsheet(ctx context.Context, spreadsheetID, dataRange string) (response ClearValuesResponse, err error) {
+	// https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/clear
+	url := fmt.Sprintf(spreadsheetValuesClearURL, spreadsheetID, dataRange)
+	err = c.ReadJSON(ctx, url, &response)
+	return
 }
 
 // UpdateSpreadsheet updates a spreadsheet of a range of provided "dataRange",

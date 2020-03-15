@@ -2,7 +2,7 @@
 
 [![build status](https://img.shields.io/travis/kataras/sheets/master.svg?style=for-the-badge&logo=travis)](https://travis-ci.org/kataras/sheets) [![report card](https://img.shields.io/badge/report%20card-a%2B-ff3333.svg?style=for-the-badge)](https://goreportcard.com/report/github.com/kataras/sheets) [![godocs](https://img.shields.io/badge/go-%20docs-488AC7.svg?style=for-the-badge)](https://godoc.org/github.com/kataras/sheets)
 
-A [Google Sheets](https://docs.google.com/spreadsheets) Client written in Go.
+Lightweight [Google Spreadsheets](https://docs.google.com/spreadsheets) Client written in Go.
 
 This package is under active development and a **work-in-progress** project. You should NOT use it on production. Please consider using the official [Google's Sheets client for Go](https://developers.google.com/sheets/api/quickstart/go) instead.
 
@@ -57,6 +57,9 @@ func main() {
         {"updated record value: 1.1", "updated record value: 1.2"},
         {"updated record value: 2.1", "updated record value: 2.2"},
     })
+
+    // Clears record values of a spreadsheet.
+    cleared, err := client.ClearSpreadsheet(ctx, spreadsheetID, "A1:E5")
 
     // [...]
 }
