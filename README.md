@@ -32,6 +32,7 @@ import (
 
 func main() {
     ctx := context.TODO()
+    //                            or .Token(ctx, ...)
     client := sheets.NewClient(sheets.ServiceAccount(ctx, "client_secret.json"))
 
     var (
@@ -45,14 +46,14 @@ func main() {
         }{}
     )
 
+    // Fill the "records" slice from a spreadsheet of one or more data range.
     err := client.ReadSpreadsheet(ctx, &records, spreadsheetID, dataRange)
     if err != nil {
         panic(err)
     }
 
-    // [...]
-
-    err = client.UpdateSpreadsheet(ctx, spreadsheetID, "A2:Z", [][]interface{}{
+    // Update a spreadsheet on specific range.
+    updated, err := client.UpdateSpreadsheet(ctx, spreadsheetID, "A2:Z", [][]interface{}{
         {"updated record value: 1.1", "updated record value: 1.2"},
         {"updated record value: 2.1", "updated record value: 2.2"},
     })
