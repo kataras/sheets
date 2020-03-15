@@ -8,6 +8,9 @@ import (
 
 const structTag = "sheets"
 
+// Rows is the default "ROWS" ValueRange.MajorDimension value.
+const Rows = "ROWS"
+
 type (
 	// ValueRange holds data within a range of the spreadsheet.
 	ValueRange struct {

@@ -53,9 +53,13 @@ func main() {
     }
 
     // Update a spreadsheet on specific range.
-    updated, err := client.UpdateSpreadsheet(ctx, spreadsheetID, "A2:Z", [][]interface{}{
-        {"updated record value: 1.1", "updated record value: 1.2"},
-        {"updated record value: 2.1", "updated record value: 2.2"},
+    updated, err := client.UpdateSpreadsheet(ctx, spreadsheetID, sheets.ValueRange{
+        Range: "A2:Z",
+        MajorDimension: sheets.Rows,
+        Values: [][]interface{}{
+            {"updated record value: 1.1", "updated record value: 1.2"},
+            {"updated record value: 2.1", "updated record value: 2.2"},
+        },
     })
 
     // Clears record values of a spreadsheet.

@@ -60,8 +60,8 @@ func (r *gzipReadCloser) Read(p []byte) (n int, err error) {
 // Do sends an HTTP request and returns an HTTP response.
 // It respects gzip and some settings specified to google's spreadsheet API.
 // The last option can be used to modify a request before sent to the server.
-func (c *Client) Do(ctx context.Context, method, url string, options ...RequestOption) (*http.Response, error) {
-	req, err := http.NewRequest(method, url, nil)
+func (c *Client) Do(ctx context.Context, method, url string, body io.Reader, options ...RequestOption) (*http.Response, error) {
+	req, err := http.NewRequest(method, url, body)
 	if err != nil {
 		return nil, err
 	}
@@ -101,8 +101,20 @@ func (c *Client) Do(ctx context.Context, method, url string, options ...RequestO
 }
 
 // ReadJSON fires a request to "url" and binds a JSON response to the "toPtr".
-func (c *Client) ReadJSON(ctx context.Context, url string, toPtr interface{}, options ...RequestOption) error {
-	resp, err := c.Do(ctx, http.MethodGet, url, options...)
+func (c *Client) ReadJSON(ctx context.Context, method, url string, requestData, toPtr interface{}, options ...RequestOption) error {
+	var requestBody io.Reader
+
+	if requestData != nil {
+		buf := new(bytes.Buffer)
+		err := json.NewEncoder(buf).Encode(requestData)
+		if err != nil {
+			return err
+		}
+
+		requestBody = buf
+	}
+
+	resp, err := c.Do(ctx, method, url, requestBody, options...)
 	if err != nil {
 		return err
 	}
@@ -121,7 +133,7 @@ const spreadsheetURL = "https://sheets.googleapis.com/v4/spreadsheets/%s"
 func (c *Client) GetSpreadsheetInfo(ctx context.Context, spreadsheetID string) (*Spreadsheet, error) {
 	url := fmt.Sprintf(spreadsheetURL, spreadsheetID)
 	sd := &Spreadsheet{}
-	err := c.ReadJSON(ctx, url, sd)
+	err := c.ReadJSON(ctx, http.MethodGet, url, nil, sd)
 	if err != nil {
 		return nil, err
 	}
@@ -143,7 +155,7 @@ func (c *Client) Range(ctx context.Context, spreadsheetID string, dataRanges ...
 		url := fmt.Sprintf(spreadsheetValuesURL, spreadsheetID, dataRanges[0])
 
 		var payload ValueRange
-		err := c.ReadJSON(ctx, url, &payload)
+		err := c.ReadJSON(ctx, http.MethodGet, url, nil, &payload)
 		if err != nil {
 			return nil, err
 		}
@@ -158,7 +170,7 @@ func (c *Client) Range(ctx context.Context, spreadsheetID string, dataRanges ...
 	var payload = struct {
 		ValueRanges []ValueRange `json:"valueRanges"`
 	}{}
-	err := c.ReadJSON(ctx, url, &payload, q)
+	err := c.ReadJSON(ctx, http.MethodGet, url, nil, &payload, q)
 	if err != nil {
 		return nil, err
 	}
@@ -180,41 +192,36 @@ func (c *Client) ReadSpreadsheet(ctx context.Context, dest interface{}, spreadsh
 // ClearSpreadsheet clears values from a spreadsheet. The caller must specify the spreadsheet ID and range.
 // Only values are cleared -- all other properties of the cell (such as formatting, data validation, etc..) are kept.
 func (c *Client) ClearSpreadsheet(ctx context.Context, spreadsheetID, dataRange string) (response ClearValuesResponse, err error) {
+	if dataRange == "" || dataRange == "*" {
+		dataRange = "A1:Z"
+	}
+
 	// https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/clear
 	url := fmt.Sprintf(spreadsheetValuesClearURL, spreadsheetID, dataRange)
-	err = c.ReadJSON(ctx, url, &response)
+	err = c.ReadJSON(ctx, http.MethodPost, url, nil, &response)
 	return
 }
 
 // UpdateSpreadsheet updates a spreadsheet of a range of provided "dataRange",
 // if "dataRange" is empty or "*" then it will update all columns specified by "values".
-func (c *Client) UpdateSpreadsheet(ctx context.Context, spreadsheetID string, dataRange string, values [][]interface{}) (UpdateValuesResponse, error) {
-	if dataRange == "" || dataRange == "*" {
-		dataRange = "A1:Z"
+func (c *Client) UpdateSpreadsheet(ctx context.Context, spreadsheetID string, values ValueRange) (response UpdateValuesResponse, err error) {
+	if values.Range == "" || values.Range == "*" {
+		values.Range = "A1:Z"
 	}
 
-	requestBody := new(bytes.Buffer)
-	err := json.NewEncoder(requestBody).Encode(ValueRange{
-		Range:  dataRange,
-		Values: values,
-	})
-	if err != nil {
-		return UpdateValuesResponse{}, err
+	if values.MajorDimension == "" {
+		values.MajorDimension = Rows
 	}
 
 	// https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/update
-	url := fmt.Sprintf(spreadsheetValuesURL, spreadsheetID, dataRange)
+	url := fmt.Sprintf(spreadsheetValuesURL, spreadsheetID, values.Range)
+
 	q := Query{
-		"valueInputOption":        []string{"ROW"},
+		"valueInputOption":        []string{"RAW"},
 		"includeValuesInResponse": []string{"false"},
 	}
 
-	resp, err := c.Do(ctx, http.MethodPut, url, q)
-	if err != nil {
-		return UpdateValuesResponse{}, err
-	}
+	err = c.ReadJSON(ctx, http.MethodPut, url, values, &response, q)
 
-	var payload UpdateValuesResponse
-	err = json.NewDecoder(resp.Body).Decode(&payload)
-	return payload, err
+	return
 }
