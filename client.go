@@ -145,6 +145,7 @@ const (
 	spreadsheetValuesURL         = spreadsheetURL + "/values/%s"
 	spreadsheetValuesBatchGetURL = spreadsheetURL + "/values:batchGet"
 	spreadsheetValuesClearURL    = spreadsheetValuesURL + ":clear"
+	spreadsheetBatchUpdateURL    = spreadsheetURL + ":batchUpdate"
 )
 
 // Range returns record values of a spreadsheet based on the provided "dataRanges", if more than one data range then it sends a batch request.
@@ -223,5 +224,13 @@ func (c *Client) UpdateSpreadsheet(ctx context.Context, spreadsheetID string, va
 
 	err = c.ReadJSON(ctx, http.MethodPut, url, values, &response, q)
 
+	return
+}
+
+// AddOrUpdateChart adds or updates a chart to a spreadsheet.
+func (c *Client) AddOrUpdateChart(ctx context.Context, spreadsheetID string, chart Chart) (response BatchUpdateResponse, err error) {
+	// https://developers.google.com/sheets/api/samples/charts#add_a_column_chart
+	url := fmt.Sprintf(spreadsheetBatchUpdateURL, spreadsheetID)
+	err = c.ReadJSON(ctx, http.MethodPost, url, chart, &response)
 	return
 }

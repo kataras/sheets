@@ -61,6 +61,19 @@ type (
 		StartColumnIndex int    `json:"startColumnIndex"`
 		EndColumnIndex   int    `json:"endColumnIndex"`
 	}
+
+	// BatchUpdateResponse is the response when a batch update request is fired on a spreadsheet.
+	BatchUpdateResponse struct {
+		// SpreadsheetID is the spreadsheet the updates were applied to.
+		SpreadsheetID string `json:"spreadsheetId,omitempty"`
+
+		// UpdatedSpreadsheet: The spreadsheet after updates were applied. This
+		// is only set
+		// if
+		// [BatchUpdateSpreadsheetRequest.include_spreadsheet_in_response] is
+		// `true`.
+		UpdatedSpreadsheet *Spreadsheet `json:"updatedSpreadsheet,omitempty"`
+	}
 )
 
 // RangeAll returns a data range text which can be used to fetch all rows of a sheet.
