@@ -227,10 +227,29 @@ func (c *Client) UpdateSpreadsheet(ctx context.Context, spreadsheetID string, va
 	return
 }
 
-// AddOrUpdateChart adds or updates a chart to a spreadsheet.
-func (c *Client) AddOrUpdateChart(ctx context.Context, spreadsheetID string, chart Chart) (response BatchUpdateResponse, err error) {
+type batchUpdate struct {
+	Requests []batchUpdateRequest `json:"requests,omitempty"`
+}
+
+type batchUpdateRequest struct {
+	AddChart batchUpdateAddChartRequest `json:"addChart,omitempty"`
+}
+
+type batchUpdateAddChartRequest struct {
+	Chart Chart `json:"chart,omitempty"`
+}
+
+// AddChart creates or updates an existing chart to a spreadsheet.
+func (c *Client) AddChart(ctx context.Context, spreadsheetID string, chart Chart) (response BatchUpdateResponse, err error) {
 	// https://developers.google.com/sheets/api/samples/charts#add_a_column_chart
 	url := fmt.Sprintf(spreadsheetBatchUpdateURL, spreadsheetID)
-	err = c.ReadJSON(ctx, http.MethodPost, url, chart, &response)
+
+	err = c.ReadJSON(ctx, http.MethodPost, url, batchUpdate{
+		Requests: []batchUpdateRequest{
+			{AddChart: batchUpdateAddChartRequest{
+				Chart: chart,
+			}},
+		},
+	}, &response)
 	return
 }

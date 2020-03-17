@@ -67,12 +67,8 @@ type (
 		// SpreadsheetID is the spreadsheet the updates were applied to.
 		SpreadsheetID string `json:"spreadsheetId,omitempty"`
 
-		// UpdatedSpreadsheet: The spreadsheet after updates were applied. This
-		// is only set
-		// if
-		// [BatchUpdateSpreadsheetRequest.include_spreadsheet_in_response] is
-		// `true`.
-		UpdatedSpreadsheet *Spreadsheet `json:"updatedSpreadsheet,omitempty"`
+		// UpdatedSpreadsheet: The spreadsheet after updates were applied.
+		// UpdatedSpreadsheet *Spreadsheet `json:"updatedSpreadsheet,omitempty"`
 	}
 )
 

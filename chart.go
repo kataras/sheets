@@ -54,6 +54,18 @@ type (
 		//  inferred from the header values.)
 		HeaderCount int64 `json:"headerCount,omitempty"`
 
+		// LegendPosition is the position of the chart legend.
+		// use.
+		//
+		// Possible values:
+		//   "BOTTOM_LEGEND" - The legend is rendered on the bottom of the
+		// chart.
+		//   "LEFT_LEGEND" - The legend is rendered on the left of the chart.
+		//   "RIGHT_LEGEND" - The legend is rendered on the right of the chart.
+		//   "TOP_LEGEND" - The legend is rendered on the top of the chart.
+		//   "NO_LEGEND" - No legend is rendered.
+		LegendPosition string `json:"legendPosition,omitempty"`
+
 		// StackedType is the stacked type for charts that support vertical
 		// stacking.
 		// Applies to Area, Bar, Column, Combo, and Stepped Area charts.
