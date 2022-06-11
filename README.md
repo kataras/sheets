@@ -11,7 +11,7 @@ This package is under active development and a **work-in-progress** project. You
 The only requirement is the [Go Programming Language](https://golang.org/dl).
 
 ```sh
-$ go get -u github.com/kataras/sheets
+$ go get github.com/kataras/sheets@latest
 ```
 
 ## Getting Started
