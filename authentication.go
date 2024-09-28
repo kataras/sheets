@@ -28,7 +28,7 @@ const (
 //
 // It panics on errors.
 func ServiceAccount(ctx context.Context, serviceAccountFile string, scopes ...string) http.RoundTripper {
-	b, err := ioutil.ReadFile(serviceAccountFile)
+	b, err := os.ReadFile(serviceAccountFile)
 	if err != nil {
 		log.Fatalf("Unable to read service account secret file: %v", err)
 	}
@@ -38,6 +38,9 @@ func ServiceAccount(ctx context.Context, serviceAccountFile string, scopes ...st
 	}
 
 	config, err := google.JWTConfigFromJSON(b, scopes...)
+	if err != nil {
+		log.Fatalf("Unable to parse service account secret file to config: %v", err)
+	}
 	client := config.Client(ctx)
 	return client.Transport
 }

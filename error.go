@@ -45,9 +45,10 @@ func (e *ResourceError) Error() string {
 // IsStatusError reports whether a "target" error is type of `ResourceError` and the status code is the provided "statusCode" one.
 // Usage:
 // resErr, ok := IsStatusError(http.StatusNotFound, err)
-// if ok {
-//	[ressErr.Method, URL, StatusCode, Message...]
-// }
+//
+//	if ok {
+//		[ressErr.Method, URL, StatusCode, Message...]
+//	}
 //
 // See `IsResourceError` too.
 func IsStatusError(statusCode int, target error) (*ResourceError, bool) {

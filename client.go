@@ -66,7 +66,9 @@ func (c *Client) Do(ctx context.Context, method, url string, body io.Reader, opt
 		return nil, err
 	}
 
-	req.URL.Query().Set("prettyPrint", "false")
+	query := req.URL.Query()
+	query.Set("prettyPrint", "false")
+	req.URL.RawQuery = query.Encode()
 
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("Accept-Encoding", "gzip")

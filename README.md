@@ -8,7 +8,7 @@ This package is under active development and a **work-in-progress** project. You
 
 ## Installation
 
-The only requirement is the [Go Programming Language](https://golang.org/dl).
+The only requirement is the [Go Programming Language](https://go.dev/dl).
 
 ```sh
 $ go get github.com/kataras/sheets@latest
